@@ -6,7 +6,7 @@ These packages support Moveit!, RViz and serial communication with swiftpro.
 Download ros packages for uarm swift pro
 ```bash
 $ cd ~/catkin_ws/src
-$ git clone 
+$ git clone https://github.com/uArm-Developer/SwiftproForROS.git
 ```
 Install ros serial package
 ```bash
@@ -60,7 +60,7 @@ roslaunch swiftpro_moveit demo.launch
 right now, you can do trajectory planning or grasping in moveIt!.
 
 ### 3.3 About nodes and topics
-<img src="http://obmqyor62.bkt.clouddn.com/ROS_swiftpro2.jpg" width = "750" height = "150" />
+<img src="http://obmqyor62.bkt.clouddn.com/ROS_swiftpro2.jpg" width = "800" height = "160" />
 
 ### 3.4 About message
 unit of motor angles is degree; unit of length(x, y, z) is millimeter
