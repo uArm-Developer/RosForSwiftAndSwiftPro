@@ -1,0 +1,9 @@
+<launch>
+	<param name="robot_description" command="cat $(find swiftpro)/urdf/model.xacro" />
+	<param name="use_gui" value= "False" />
+
+	<node name="serial_send_node" pkg="swiftpro" type="serial_send_node" />
+	<node name="state_node" pkg="swiftpro" type="state_node" />
+	
+	<node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
+</launch>
