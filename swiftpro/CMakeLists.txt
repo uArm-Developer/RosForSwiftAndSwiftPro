@@ -54,6 +54,9 @@ find_package(catkin REQUIRED COMPONENTS
 add_message_files(
   FILES
   SwiftproState.msg
+  position.msg
+  angle4th.msg
+  status.msg
 )
 
 ## Generate services in the 'srv' folder
@@ -209,12 +212,15 @@ include_directories(include/swiftpro)
 #install(TARGETS  MyRobot
 #	LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION})
 
-add_executable(state_node src/state_node.cpp)
-target_link_libraries(state_node ${catkin_LIBRARIES})
+add_executable(swiftpro_write_node src/swiftpro_write_node.cpp)
+target_link_libraries(swiftpro_write_node ${catkin_LIBRARIES})
 
-add_executable(serial_rece_node src/serial_rece_node.cpp)
-target_link_libraries(serial_rece_node ${catkin_LIBRARIES})
+add_executable(swiftpro_moveit_node src/swiftpro_moveit_node.cpp)
+target_link_libraries(swiftpro_moveit_node ${catkin_LIBRARIES})
 
-add_executable(serial_send_node src/serial_send_node.cpp)
-target_link_libraries(serial_send_node ${catkin_LIBRARIES})
+add_executable(swiftpro_rviz_node src/swiftpro_rviz_node.cpp)
+target_link_libraries(swiftpro_rviz_node ${catkin_LIBRARIES})
+
+add_executable(swiftpro_read_node src/swiftpro_read_node.cpp)
+target_link_libraries(swiftpro_read_node ${catkin_LIBRARIES})
 

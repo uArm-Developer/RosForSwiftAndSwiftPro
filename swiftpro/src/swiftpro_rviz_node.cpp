@@ -2,10 +2,8 @@
  * Software License Agreement (BSD License)
  * Copyright (c) 2017, UFactory, Inc.
  * All rights reserved.
- * Author: Roger Cui  <roger@ufactory.cc>
- *		   David Long <xiaokun.long@ufactory.cc>	   
+ * Author: Roger Cui  <roger@ufactory.cc>   
  */
-
 #include <string>
 #include <ros/ros.h>
 #include <std_msgs/String.h>
@@ -57,34 +55,17 @@ void all_joints_state(float angle[3])
 	joint_angle[8] = 48.39 + alpha3 - 44.55;
 }
 
-/* 
- * Description: forward kinematics of swift pro
- * Inputs: 		angle[3]			3 motor angles(degree)
- * Outputs:		cart[3]				3 cartesian coordinates: x, y, z(mm)
- */
-void swift_fk(float angle[3], float cart[3])
-{
-	double stretch = MATH_LOWER_ARM * cos(angle[1] / MATH_TRANS) 
-				   + MATH_UPPER_ARM * cos(angle[2] / MATH_TRANS) + MATH_L2 + 56.55;
-
-	double height = MATH_LOWER_ARM * sin(angle[1] / MATH_TRANS) 
-				  - MATH_UPPER_ARM * sin(angle[2] / MATH_TRANS) + MATH_L1;
-	
-	cart[0] = stretch * sin(angle[0] / MATH_TRANS);
-	cart[1] = -stretch * cos(angle[0] / MATH_TRANS);
-	cart[2] = height - 74.55;
-}
 
 /* 
  * Description: inverse kinematics of swift pro
- * Inputs: 		cart[3]				3 cartesian coordinates: x, y, z(mm)
+ * Inputs: 		position[3]			3 cartesian coordinates: x, y, z(mm)
  * Outputs:		angle[3]			3 motor angles(degree)
  */
-bool swiftpro_ik(float cart[3], float angle[3])
+bool swiftpro_ik(float position[3], float angle[3])
 {
-	float x = cart[0];
-	float y = cart[1];
-	float z = cart[2];
+	float x = position[0];
+	float y = position[1];
+	float z = position[2];
 	float xIn, zIn, phi, rightAll, sqrtZX = 0.0;
 	float angleRot, angleLeft, angleRight = 0.0;
 	
@@ -124,85 +105,50 @@ bool swiftpro_ik(float cart[3], float angle[3])
 	return true;
 }
 
+
 /* 
- * Description: callback when receive data from cart_send_topic
- * Inputs: 		msg					3 cartesian coordinates: x, y, z(mm)
+ * Description: callback when receive data from position_read_topic
+ * Inputs: 		msg(SwiftproState)	data about swiftpro
  * Outputs:		joint_angle[9]		9 joint angles(degree)
  */
-void cart_Callback(const swiftpro::SwiftproState& msg)
+void SwiftproState_Callback(const swiftpro::SwiftproState& msg)
 {
-	float cart[3];
+	float position[3];
 	float angle[3];
 	
-	cart[0] = msg.cart_x;
-	cart[1] = msg.cart_y;
-	cart[2] = msg.cart_z;
+	position[0] = msg.x;
+	position[1] = msg.y;
+	position[2] = msg.z;
 	
-	if ( swiftpro_ik(cart, angle) )
+	if ( swiftpro_ik(position, angle) )
 		all_joints_state(angle);
 	else
 		ROS_ERROR("Inverse kinematic is wrong");
 }
 
-/* 
- * Description: callback when receive data from move_group/fake_controller_joint_states
- * Inputs: 		msg					3 necessary joints for kinematic chain(degree)
- * Outputs:		joint_angle[9]		9 joint angles(degree)
- */
-void joint_Callback(const sensor_msgs::JointState& msg)
-{
-	double alpha2;
-	double alpha3;
-	
-	joint_angle[0] = msg.position[0] * 57.2958;
-	joint_angle[1] = msg.position[1] * 57.2958;
-	joint_angle[2] = msg.position[2] * 57.2958;
-	
-	alpha2 = 90 - joint_angle[1];
-	alpha3 = joint_angle[2] - alpha2  + 176.11 - 90;
-	
-	joint_angle[3] = -90 + alpha2;
-	joint_angle[4] = joint_angle[1];
-	joint_angle[5] = alpha3;
-	joint_angle[6] = 90 - (alpha2 + alpha3);
-	joint_angle[7] = 176.11 - 180 - alpha3;
-	joint_angle[8] = 48.39 + alpha3 - 44.55;
-}
-
 
 /* 
  * Node name:
- *	 state_node
+ *	 swiftpro_rviz_node
  *
  * Topic publish: (rate = 20Hz, queue size = 1)
- *   cart_send_topic
  *	 joint_states
  *
  * Topic subscribe: (queue size = 1)
- *	 cart_rece_topic
- *   move_group/fake_controller_joint_states
- *
- * Parameters:
- *   None
+ *	 SwiftproState_topic
  */
 int main(int argc, char **argv)
-{
-	float angle[3];
-	float cart[3];
-	
-	ros::init(argc, argv, "state_node");
+{	
+	ros::init(argc, argv, "swiftpro_rviz_node");
 	ros::NodeHandle n;
 	
-	ros::Subscriber cart_sub  = n.subscribe("cart_rece_topic", 1, cart_Callback);
-	ros::Subscriber joint_sub = n.subscribe("move_group/fake_controller_joint_states", 1, joint_Callback);
-	ros::Publisher 	cart_pub  = n.advertise<swiftpro::SwiftproState>("cart_send_topic", 1);
-	ros::Publisher 	joint_pub = n.advertise<sensor_msgs::JointState>("joint_states", 1);
+	ros::Subscriber sub = n.subscribe("SwiftproState_topic", 1, SwiftproState_Callback);
+	ros::Publisher 	pub = n.advertise<sensor_msgs::JointState>("joint_states", 1);
 	ros::Rate loop_rate(20);
 
 	tf::TransformBroadcaster 		broadcaster;
 	sensor_msgs::JointState 		joint_state;
 	geometry_msgs::TransformStamped odom_trans;
-	swiftpro::SwiftproState			swiftpro_state;
 	
 	odom_trans.header.frame_id = "odom";
 	odom_trans.child_frame_id  = "Base";
@@ -230,19 +176,6 @@ int main(int argc, char **argv)
 		joint_state.position[7] = joint_angle[7] / 57.2958;
 		joint_state.name[8] = "Joint9";
 		joint_state.position[8] = joint_angle[8] / 57.2958;
-		
-		angle[0] = joint_angle[0] + 90;
-		angle[1] = 90 - joint_angle[1];
-		angle[2] = joint_angle[5] + 3.8;
-		swift_fk(angle, cart);
-		swiftpro_state.motor_angle1 = angle[0];
-		swiftpro_state.motor_angle2 = angle[1];
-		swiftpro_state.motor_angle3 = angle[2];
-		swiftpro_state.motor_angle4 = 0.0;
-		swiftpro_state.cart_x = cart[0];
-		swiftpro_state.cart_y = cart[1];
-		swiftpro_state.cart_z = cart[2];
-		ROS_INFO("x = %f, y = %f, z = %f", cart[0], cart[1], cart[2]);
 
 		odom_trans.header.stamp = ros::Time::now();
 		odom_trans.transform.translation.x = 0;
@@ -250,8 +183,7 @@ int main(int argc, char **argv)
 		odom_trans.transform.translation.z = 0.0;
 		odom_trans.transform.rotation = tf::createQuaternionMsgFromYaw(10);
 		
-		joint_pub.publish(joint_state);
-		cart_pub.publish(swiftpro_state);
+		pub.publish(joint_state);
 		broadcaster.sendTransform(odom_trans);
 		
 		ros::spinOnce();

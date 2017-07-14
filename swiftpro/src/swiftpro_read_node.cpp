@@ -13,7 +13,7 @@
 #include <swiftpro/SwiftproState.h>
 
 serial::Serial _serial;				// serial object
-float cart[3] = {0.0};				// 3 cartesian coordinates: x, y, z(mm)
+float position[4] = {0.0};			// 3 cartesian coordinates: x, y, z(mm) and 1 angle(degree)
 char  strdata[2048];				// global variables for handling string
 
 
@@ -29,9 +29,10 @@ void handlestr()
 		pch = strtok(NULL, " ");
 		index++;
 	}
-	cart[0] = value[1];
-	cart[1] = value[2];
-	cart[2] = value[3];
+	position[0] = value[1];
+	position[1] = value[2];
+	position[2] = value[3];
+	position[3] = value[4];
 }
 
 
@@ -58,19 +59,19 @@ void handlechar(char c)
 
 /* 
  * Node name:
- *	 serial_rece_node
+ *	 swiftpro_read_node
  *
  * Topic publish: (rate = 20Hz, queue size = 1)
- *   cart_rece_topic
+ *   position_read_topic
  */
 int main(int argc, char** argv)
 {	
-	ros::init(argc, argv, "serial_rece_node");
+	ros::init(argc, argv, "swiftpro_read_node");
 	ros::NodeHandle nh;
 	swiftpro::SwiftproState swiftpro_state;
 	std_msgs::String result;
 
-	ros::Publisher pub = nh.advertise<swiftpro::SwiftproState>("cart_rece_topic", 1);
+	ros::Publisher pub = nh.advertise<swiftpro::SwiftproState>("SwiftproState_topic", 1);
 	ros::Rate loop_rate(20);
 
 	try
@@ -97,7 +98,7 @@ int main(int argc, char** argv)
 		ROS_INFO_STREAM("Start to report data");
 	}
 	
-	while (ros::ok())							// publish cartesian coordinates
+	while (ros::ok())							// publish positionesian coordinates
 	{
 		if (_serial.available())
 		{
@@ -106,15 +107,18 @@ int main(int argc, char** argv)
 			for (int i = 0; i < result.data.length(); i++)
 				handlechar(result.data.c_str()[i]);
 
+			swiftpro_state.pump = 0;
+			swiftpro_state.gripper = 0;
+			swiftpro_state.swiftpro_status = 0;
 			swiftpro_state.motor_angle1 = 0.0;
 			swiftpro_state.motor_angle2 = 0.0;
 			swiftpro_state.motor_angle3 = 0.0;
-			swiftpro_state.motor_angle4 = 0.0;
-			swiftpro_state.cart_x = cart[0];
-			swiftpro_state.cart_y = cart[1];
-			swiftpro_state.cart_z = cart[2];
+			swiftpro_state.motor_angle4 = position[3];
+			swiftpro_state.x = position[0];
+			swiftpro_state.y = position[1];
+			swiftpro_state.z = position[2];
 			pub.publish(swiftpro_state);
-			ROS_INFO("Cart: %f %f %f", cart[0], cart[1], cart[2]);
+			ROS_INFO("position: %.2f %.2f %.2f %.2f", position[0], position[1], position[2], position[3]);
 		}
 		ros::spinOnce();
 		loop_rate.sleep();

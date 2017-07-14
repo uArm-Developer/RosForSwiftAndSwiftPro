@@ -6,7 +6,7 @@ These packages support Moveit!, RViz and serial communication with swiftpro.
 Download ros packages for uarm swift pro
 ```bash
 $ cd ~/catkin_ws/src
-$ git clone https://github.com/uArm-Developer/SwiftproForROS.git
+$ git clone 
 ```
 Install ros serial package
 ```bash
@@ -26,30 +26,26 @@ $ catkin_make
 Source all setup.bash files to set up your enviroment.
 ```bash
 # System configure ROS environment variables automatically every time you open a ternimal
-echo "source /opt/ros/[ROS_version]/setup.bash" >> ~/.bashrc
-# For example, if you are using kinetic version of ROS
 echo "source /opt/ros/kinetic/setup.bash" >> ~/.bashrc
-
-# Source setup.bash
 echo "source ~/catkin_ws/devel/setup.bash" >> ~/.bashrc
 source ~/.bashrc
 ```
 
 ## 3. Simulation
-Get USB permission to access uArm
+Connect your swiftpro to computer and get USB permission to access uArm
 ```bash
 $ sudo chmod 666 /dev/ttyACM0
 ```
 
-### 3.1 Get data from swiftpro
-Connect swiftpro, get data from serial and simulate swiftpro in RViz.
+### 3.1 Display mode: Get data from swiftpro
+Get data from serial and simulate swiftpro in RViz.
 ```bash
 roslaunch swiftpro display.launch
 ```
-right now, you can drag and teach your swiftpro and it will simulate in Rviz.
+right now, you can drag your swiftpro and it will simulate in Rviz.
 
-### 3.2 Send data to swiftpro
-Connect swiftpro, send data though serial (need to close serial_rece_node first).
+### 3.2 Control Mode: Send data to swiftpro
+Connect swiftpro, send data though serial.
 ```bash
 roslaunch swiftpro control.launch
 ```
@@ -60,16 +56,33 @@ roslaunch swiftpro_moveit demo.launch
 right now, you can do trajectory planning or grasping in moveIt!.
 
 ### 3.3 About nodes and topics
-<img src="http://obmqyor62.bkt.clouddn.com/ROS_swiftpro2.jpg" width = "800" height = "160" />
+<img src="http://obmqyor62.bkt.clouddn.com/swift.jpg" width = "780" height = "350" />
 
 ### 3.4 About message
-unit of motor angles is degree; unit of length(x, y, z) is millimeter
+SwiftproState.msg: includes all data about swiftpro
 ```bash
 float64 motor_angle1
 float64 motor_angle2
 float64 motor_angle3
 float64 motor_angle4
-float64 cart_x
-float64 cart_y
-float64 cart_z
+float64 x
+float64 y
+float64 z
+uint8   pump
+uint8   swiftpro_status
+uint8   gripper
+```
+position.msg: includes x, y, z information(mm)
+```bash
+float64 x
+float64 y
+float64 z
+```
+angle4th.msg: 4th motor angle(degree)
+```bash
+float64 angle4th
+```
+status.msg: work if 1; otherwise 0
+```bash
+uint8 status
 ```
