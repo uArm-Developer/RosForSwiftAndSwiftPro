@@ -139,21 +139,37 @@ include_directories(
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
 # add_executable(${PROJECT_NAME}_node src/swiftpro_node.cpp)
+add_executable(swiftpro_write_node src/swiftpro_write_node.cpp)
+add_executable(swiftpro_moveit_node src/swiftpro_moveit_node.cpp)
+add_executable(swiftpro_rviz_node src/swiftpro_rviz_node.cpp)
+add_executable(swiftpro_read_node src/swiftpro_read_node.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
 ## target back to the shorter version for ease of user use
 ## e.g. "rosrun someones_pkg node" instead of "rosrun someones_pkg someones_pkg_node"
 # set_target_properties(${PROJECT_NAME}_node PROPERTIES OUTPUT_NAME node PREFIX "")
+set_target_properties(swiftpro_write_node PROPERTIES OUTPUT_NAME write PREFIX "")
+set_target_properties(swiftpro_moveit_node PROPERTIES OUTPUT_NAME moveit PREFIX "")
+set_target_properties(swiftpro_rviz_node PROPERTIES OUTPUT_NAME rviz PREFIX "")
+set_target_properties(swiftpro_read_node PROPERTIES OUTPUT_NAME read PREFIX "")
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above
 # add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(swiftpro_write_node swiftpro_generate_messages_cpp)
+add_dependencies(swiftpro_moveit_node swiftpro_generate_messages_cpp)
+add_dependencies(swiftpro_rviz_node swiftpro_generate_messages_cpp)
+add_dependencies(swiftpro_read_node swiftpro_generate_messages_cpp)
 
 ## Specify libraries to link a library or executable target against
 # target_link_libraries(${PROJECT_NAME}_node
 #   ${catkin_LIBRARIES}
 # )
+target_link_libraries(swiftpro_write_node ${catkin_LIBRARIES})
+target_link_libraries(swiftpro_moveit_node ${catkin_LIBRARIES})
+target_link_libraries(swiftpro_rviz_node ${catkin_LIBRARIES})
+target_link_libraries(swiftpro_read_node ${catkin_LIBRARIES})
 
 #############
 ## Install ##
@@ -211,16 +227,3 @@ include_directories(include/swiftpro)
 #link_directories(src)
 #install(TARGETS  MyRobot
 #	LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION})
-
-add_executable(swiftpro_write_node src/swiftpro_write_node.cpp)
-target_link_libraries(swiftpro_write_node ${catkin_LIBRARIES})
-
-add_executable(swiftpro_moveit_node src/swiftpro_moveit_node.cpp)
-target_link_libraries(swiftpro_moveit_node ${catkin_LIBRARIES})
-
-add_executable(swiftpro_rviz_node src/swiftpro_rviz_node.cpp)
-target_link_libraries(swiftpro_rviz_node ${catkin_LIBRARIES})
-
-add_executable(swiftpro_read_node src/swiftpro_read_node.cpp)
-target_link_libraries(swiftpro_read_node ${catkin_LIBRARIES})
-

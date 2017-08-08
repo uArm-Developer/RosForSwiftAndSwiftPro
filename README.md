@@ -1,22 +1,20 @@
 # SwiftproForROS
-This is the swiftpro ROS package designed by Roger Cui(roger@ufactory.cc) and David Long (xiaokun.long@ufactory.cc). 
+This is the swiftpro ROS package designed by Roger Cui(roger@ufactory.cc) and David Long (xiaokun.long@ufactory.cc).
 These packages support Moveit!, RViz and serial communication with swiftpro.
 
 ## 1. Download and install
 Download ros packages for uarm swift pro
 ```bash
 $ cd ~/catkin_ws/src
-$ git clone 
+$ git clone
 ```
+or manually copy package folders *swiftpro* and *swiftpro_moveit* into a catkin_ws/src.
+
 Install ros serial package
 ```bash
 $ sudo apt-get install ros-kinetic-serial
 ```
-Copy head file into include folder of catkin_ws
-```bash
-$ cd ~/catkin_ws
-$ cp -r src/swiftpro/include/swiftpro devel/include
-```
+
 Compile
 ```bash
 $ catkin_make
