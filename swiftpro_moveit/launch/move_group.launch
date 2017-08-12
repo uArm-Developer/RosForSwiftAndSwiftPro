@@ -25,6 +25,10 @@
     <arg name="pipeline" value="ompl" />
   </include>
 
+  <!-- Broadcasting static tf to link the robot root to the world map -->
+  <node pkg="tf" type="static_transform_publisher" name="virtual_joint_broadcaster_0" args="0 0 0 0 0 0 1 map Base 10" />
+
+
   <!-- Trajectory Execution Functionality -->
   <include ns="move_group" file="$(find swiftpro_moveit)/launch/trajectory_execution.launch.xml" if="$(arg allow_trajectory_execution)">
     <arg name="moveit_manage_controllers" value="true" />
