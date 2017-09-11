@@ -6,7 +6,7 @@ These packages support Moveit!, RViz and serial communication with swiftpro.
 Download ros packages for uarm swift pro
 ```bash
 $ cd ~/catkin_ws/src
-$ git clone
+$ git clone https://github.com/uArm-Developer/SwiftproForROS.git
 ```
 or manually copy package folders *swiftpro* and *swiftpro_moveit* into a catkin_ws/src.
 
