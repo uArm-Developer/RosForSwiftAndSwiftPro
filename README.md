@@ -8,7 +8,7 @@ Download ros packages for uarm swift pro
 $ cd ~/catkin_ws/src
 $ git clone https://github.com/uArm-Developer/SwiftproForROS.git
 ```
-or manually copy package folders *swiftpro* and *swiftpro_moveit* into a catkin_ws/src.
+then manually copy package folders *swiftpro* and *swiftpro_moveit* into a catkin_ws/src.
 
 Install ros serial package
 ```bash
