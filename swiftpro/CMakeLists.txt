@@ -149,10 +149,10 @@ add_executable(swiftpro_read_node src/swiftpro_read_node.cpp)
 ## target back to the shorter version for ease of user use
 ## e.g. "rosrun someones_pkg node" instead of "rosrun someones_pkg someones_pkg_node"
 # set_target_properties(${PROJECT_NAME}_node PROPERTIES OUTPUT_NAME node PREFIX "")
-set_target_properties(swiftpro_write_node PROPERTIES OUTPUT_NAME write PREFIX "")
-set_target_properties(swiftpro_moveit_node PROPERTIES OUTPUT_NAME moveit PREFIX "")
-set_target_properties(swiftpro_rviz_node PROPERTIES OUTPUT_NAME rviz PREFIX "")
-set_target_properties(swiftpro_read_node PROPERTIES OUTPUT_NAME read PREFIX "")
+#set_target_properties(swiftpro_write_node PROPERTIES OUTPUT_NAME write PREFIX "")
+#set_target_properties(swiftpro_moveit_node PROPERTIES OUTPUT_NAME moveit PREFIX "")
+#set_target_properties(swiftpro_rviz_node PROPERTIES OUTPUT_NAME rviz PREFIX "")
+#set_target_properties(swiftpro_read_node PROPERTIES OUTPUT_NAME read PREFIX "")
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above
