@@ -10,9 +10,15 @@ $ git clone https://github.com/uArm-Developer/RosForSwiftAndSwiftPro.git
 ```
 then manually copy package folders *swiftpro* *swift_moveit_config* and *pro_moveit_config* into a catkin_ws/src.
 
-Install ros serial package
-```bash
-$ sudo apt-get install ros-kinetic-serial
+Install dependencies using rosdep
+If running the rosdep for the first time start by running: 
+```
+sudo rosdep init
+rosdep update
+```
+Then isntall all dependencies using:
+```
+rosdep install --from-paths ./ -i
 ```
 
 Compile
