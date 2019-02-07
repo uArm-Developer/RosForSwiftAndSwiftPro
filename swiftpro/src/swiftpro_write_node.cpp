@@ -22,7 +22,7 @@ swiftpro::SwiftproState pos;
  * Inputs: 		msg(float)			3 cartesian coordinates: x, y, z(mm)
  * Outputs:		Gcode				send gcode to control swift pro
  */
-void position_write_callback(const swiftpro::position& msg)
+void write_position_callback(const swiftpro::position& msg)
 {
 	std::string Gcode = "";
 	std_msgs::String result;
@@ -48,7 +48,7 @@ void position_write_callback(const swiftpro::position& msg)
  * Inputs: 		msg(float)			angle of 4th motor(degree)
  * Outputs:		Gcode				send gcode to control swift pro
  */
-void angle4th_callback(const swiftpro::angle4th& msg)
+void write_angle4th_callback(const swiftpro::angle4th& msg)
 {
 	std::string Gcode = "";
 	std_msgs::String result;
@@ -68,7 +68,7 @@ void angle4th_callback(const swiftpro::angle4th& msg)
  * Inputs: 		msg(uint8)			status of gripper: attach if 1; detach if 0
  * Outputs:		Gcode				send gcode to control swift pro
  */
-void swiftpro_status_callback(const swiftpro::status& msg)
+void write_status_callback(const swiftpro::status& msg)
 {
 	std::string Gcode = "";
 	std_msgs::String result;
@@ -95,7 +95,7 @@ void swiftpro_status_callback(const swiftpro::status& msg)
  * Inputs: 		msg(uint8)			status of gripper: work if 1; otherwise 0
  * Outputs:		Gcode				send gcode to control swift pro
  */
-void gripper_callback(const swiftpro::status& msg)
+void write_gripper_callback(const swiftpro::status& msg)
 {
 	std::string Gcode = "";
 	std_msgs::String result;
@@ -122,7 +122,7 @@ void gripper_callback(const swiftpro::status& msg)
  * Inputs: 		msg(uint8)			status of pump: work if 1; otherwise 0
  * Outputs:		Gcode				send gcode to control swift pro
  */
-void pump_callback(const swiftpro::status& msg)
+void write_pump_callback(const swiftpro::status& msg)
 {
 	std::string Gcode = "";
 	std_msgs::String result;
@@ -164,11 +164,11 @@ int main(int argc, char** argv)
 	ros::NodeHandle nh;
 	swiftpro::SwiftproState swiftpro_state;
 
-	ros::Subscriber sub1 = nh.subscribe("position_write_topic", 1, position_write_callback);
-	ros::Subscriber sub2 = nh.subscribe("swiftpro_status_topic", 1, swiftpro_status_callback);
-	ros::Subscriber sub3 = nh.subscribe("angle4th_topic", 1, angle4th_callback);
-	ros::Subscriber sub4 = nh.subscribe("gripper_topic", 1, gripper_callback);
-	ros::Subscriber sub5 = nh.subscribe("pump_topic", 1, pump_callback);
+	ros::Subscriber sub1 = nh.subscribe("write_position_topic", 1, write_position_callback);
+	ros::Subscriber sub2 = nh.subscribe("write_status_topic", 1, write_status_callback);
+	ros::Subscriber sub3 = nh.subscribe("write_angle4th_topic", 1, write_angle4th_callback);
+	ros::Subscriber sub4 = nh.subscribe("write_gripper_topic", 1, write_gripper_callback);
+	ros::Subscriber sub5 = nh.subscribe("write_pump_topic", 1, write_pump_callback);
 	ros::Publisher 	 pub = nh.advertise<swiftpro::SwiftproState>("SwiftproState_topic", 1);
 	ros::Rate loop_rate(20);
 
