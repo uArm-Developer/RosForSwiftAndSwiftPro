@@ -26,21 +26,21 @@
 #define LOWER_UPPER_MAX_ANGLE   151
 #define LOWER_UPPER_MIN_ANGLE   10
 
-float joint_angle[9] = {0.0};		// 9 joint angles of swiftpro(degree)
+float joint_angle[10] = {0.0};		// 9 joint angles of swiftpro(degree)
 
 /* 
  * Description: Get 9 joint angles from 3 motor angles
  * Inputs: 		angle[3]			3 motor angles(degree)
  * Outputs:		joint_angle[9]		9 joint angles(degree)
  */
-void all_joints_state(float angle[3])
+void all_joints_state(float angle[4])
 {
 	double alpha2;
 	double alpha3;
-	
+
 	alpha2 = angle[1];
 	alpha3 = angle[2] - 3.8;
-	
+
 	// 3 necessary joints for kinematic chain
 	joint_angle[0] = angle[0] - 90;
 	joint_angle[1] = 90 - alpha2;
@@ -53,6 +53,7 @@ void all_joints_state(float angle[3])
 	joint_angle[6] = 90 - (alpha2 + alpha3);
 	joint_angle[7] = 176.11 - 180 - alpha3;
 	joint_angle[8] = 48.39 + alpha3 - 44.55;
+	joint_angle[9] = 90 - angle[4];
 }
 
 
@@ -61,17 +62,17 @@ void all_joints_state(float angle[3])
  * Inputs: 		position[3]			3 cartesian coordinates: x, y, z(mm)
  * Outputs:		angle[3]			3 motor angles(degree)
  */
-bool swiftpro_ik(float position[3], float angle[3])
+bool swiftpro_ik(float position[3], float angle[4])
 {
 	float x = position[0];
 	float y = position[1];
 	float z = position[2];
 	float xIn, zIn, phi, rightAll, sqrtZX = 0.0;
 	float angleRot, angleLeft, angleRight = 0.0;
-	
+
 	z += 74.55;
 	zIn = (z - MATH_L1) / MATH_LOWER_ARM;
-	
+
 	if (x < 0.1)
 		x = 0.1;
 
@@ -114,12 +115,13 @@ bool swiftpro_ik(float position[3], float angle[3])
 void SwiftproState_Callback(const swiftpro::SwiftproState& msg)
 {
 	float position[3];
-	float angle[3];
-	
+	float angle[4];
+
 	position[0] = msg.x;
 	position[1] = msg.y;
 	position[2] = msg.z;
-	
+  angle[4] = msg.motor_angle4;
+
 	if ( swiftpro_ik(position, angle) )
 		all_joints_state(angle);
 	else
@@ -141,7 +143,7 @@ int main(int argc, char **argv)
 {	
 	ros::init(argc, argv, "swiftpro_rviz_node");
 	ros::NodeHandle n;
-	
+
 	ros::Subscriber sub = n.subscribe("SwiftproState_topic", 1, SwiftproState_Callback);
 	ros::Publisher 	pub = n.advertise<sensor_msgs::JointState>("joint_states", 1);
 	ros::Rate loop_rate(20);
@@ -149,18 +151,18 @@ int main(int argc, char **argv)
 	tf::TransformBroadcaster 		broadcaster;
 	sensor_msgs::JointState 		joint_state;
 	geometry_msgs::TransformStamped odom_trans;
-	
+
 	odom_trans.header.frame_id = "odom";
 	odom_trans.child_frame_id  = "Base";
-	
+
 	while (ros::ok())
 	{
 		joint_state.header.stamp = ros::Time::now();
-		joint_state.name.resize(9);
-		joint_state.position.resize(9);
+		joint_state.name.resize(10);
+		joint_state.position.resize(10);
 		joint_state.name[0] = "Joint1";
 		joint_state.position[0] = joint_angle[0] / 57.2958;
-	    joint_state.name[1] = "Joint2";
+		joint_state.name[1] = "Joint2";
 		joint_state.position[1] = joint_angle[1] / 57.2958;
 		joint_state.name[2] = "Joint3";
 		joint_state.position[2] = joint_angle[2] / 57.2958;
@@ -176,16 +178,18 @@ int main(int argc, char **argv)
 		joint_state.position[7] = joint_angle[7] / 57.2958;
 		joint_state.name[8] = "Joint9";
 		joint_state.position[8] = joint_angle[8] / 57.2958;
+		joint_state.name[9] = "Joint10";
+		joint_state.position[9] = joint_angle[9] / 57.2958;
 
 		odom_trans.header.stamp = ros::Time::now();
 		odom_trans.transform.translation.x = 0;
 		odom_trans.transform.translation.y = 0;
 		odom_trans.transform.translation.z = 0.0;
 		odom_trans.transform.rotation = tf::createQuaternionMsgFromYaw(10);
-		
+
 		pub.publish(joint_state);
 		broadcaster.sendTransform(odom_trans);
-		
+
 		ros::spinOnce();
 		loop_rate.sleep();
 	}		
