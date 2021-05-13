@@ -161,7 +161,11 @@ void pump_callback(const swiftpro::status& msg)
 int main(int argc, char** argv)
 {	
 	ros::init(argc, argv, "swiftpro_write_node");
-	ros::NodeHandle nh;
+	ros::NodeHandle nh("~");
+
+        std::string param;    
+        std::string serport;
+
 	swiftpro::SwiftproState swiftpro_state;
 
 	ros::Subscriber sub1 = nh.subscribe("position_write_topic", 1, position_write_callback);
@@ -172,9 +176,16 @@ int main(int argc, char** argv)
 	ros::Publisher 	 pub = nh.advertise<swiftpro::SwiftproState>("SwiftproState_topic", 1);
 	ros::Rate loop_rate(20);
 
+        ROS_INFO("Got parameter: %s", param.c_str());
+        if (nh.getParam("port",param)) {
+            serport.assign(param.c_str());
+        } else {
+            serport="/dev/ttyUSB0";
+        }
+
 	try
 	{
-		_serial.setPort("/dev/ttyACM0");
+		_serial.setPort(serport);
 		_serial.setBaudrate(115200);
 		serial::Timeout to = serial::Timeout::simpleTimeout(1000);
 		_serial.setTimeout(to);
